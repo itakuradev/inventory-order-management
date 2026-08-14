@@ -13,13 +13,13 @@
     "db:migrate": "pnpm --filter @logimaster/api db:migrate",
     "db:seed": "pnpm --filter @logimaster/api db:seed",
     "setup": "pnpm install && pnpm --filter @logimaster/contracts build && pnpm --filter @logimaster/api db:generate",
-    "dev": "pnpm --filter @logimaster/contracts build && pnpm --parallel --filter \"./apps/*\" dev",
+    "predev": "pnpm --filter @logimaster/contracts build",
+    "dev": "pnpm --parallel --filter @logimaster/api --filter @logimaster/web dev",
     "dev:api": "pnpm --filter @logimaster/api dev",
     "dev:web": "pnpm --filter @logimaster/web dev",
-    "build": "pnpm --filter @logimaster/contracts build && pnpm --filter @logimaster/api build && pnpm --filter @logimaster/web build",
+    "build": "pnpm -r build",
     "test": "pnpm --filter @logimaster/api test",
-    "typecheck": "pnpm -r typecheck",
-    "lint": "pnpm -r lint"
+    "typecheck": "pnpm -r typecheck"
   },
   "devDependencies": {
     "typescript": "^5.7.3"
