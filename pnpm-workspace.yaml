@@ -1,0 +1,11 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+
+# pnpm 10以降は postinstall スクリプトが既定でブロックされるため、
+# ビルドが必要な依存のみ明示的に許可する。
+allowBuilds:
+  '@prisma/client': true
+  '@prisma/engines': true
+  prisma: true
+  sharp: true
