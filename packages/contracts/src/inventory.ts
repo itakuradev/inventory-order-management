@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { optionalTrimmedString, paginationQuerySchema, sortOrderSchema } from './common';
 import type { ShipperView } from './masters';
 
-export const inventorySortKeySchema = z.enum(['sku', 'productName', 'availableQuantity', 'updatedAt']);
+export const inventorySortKeySchema = z.enum(['sku', 'productName', 'updatedAt']);
 export type InventorySortKey = z.infer<typeof inventorySortKeySchema>;
 
 export const listInventoriesQuerySchema = paginationQuerySchema.extend({
