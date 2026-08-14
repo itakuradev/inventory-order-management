@@ -1,0 +1,171 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  OPERATOR
+  ADMIN
+}
+
+enum OrderStatus {
+  ALLOCATED
+  HANDED_OVER
+  CANCELLED
+}
+
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users      User[]
+  shippers   Shipper[]
+  warehouses Warehouse[]
+  orders     Order[]
+
+  @@map("organizations")
+}
+
+model User {
+  id             String   @id @default(cuid())
+  organizationId String
+  /// Demo Authenticationで利用者を識別するキー（demo-operator / demo-admin）。本認証導入時に置き換える。
+  demoKey        String   @unique
+  name           String
+  role           UserRole
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization  Organization @relation(fields: [organizationId], references: [id])
+  createdOrders Order[]
+
+  @@index([organizationId])
+  @@map("users")
+}
+
+model Shipper {
+  id             String   @id @default(cuid())
+  organizationId String
+  code           String
+  name           String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  products     Product[]
+  orders       Order[]
+
+  @@unique([organizationId, code])
+  @@map("shippers")
+}
+
+model Warehouse {
+  id             String   @id @default(cuid())
+  organizationId String
+  code           String
+  name           String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  inventories  Inventory[]
+
+  @@unique([organizationId, code])
+  @@map("warehouses")
+}
+
+model Product {
+  id        String   @id @default(cuid())
+  shipperId String
+  sku       String
+  name      String
+  unit      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  shipper     Shipper     @relation(fields: [shipperId], references: [id])
+  inventories Inventory[]
+  orderItems  OrderItem[]
+
+  @@unique([shipperId, sku])
+  @@map("products")
+}
+
+model Inventory {
+  id                String   @id @default(cuid())
+  warehouseId       String
+  productId         String
+  onHandQuantity    Int
+  allocatedQuantity Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  warehouse   Warehouse    @relation(fields: [warehouseId], references: [id])
+  product     Product      @relation(fields: [productId], references: [id])
+  allocations Allocation[]
+
+  @@unique([warehouseId, productId])
+  @@map("inventories")
+}
+
+model Order {
+  id                 String      @id @default(cuid())
+  organizationId     String
+  shipperId          String
+  orderNumber        String
+  destinationName    String
+  destinationAddress String
+  requestedShipDate  DateTime    @db.Date
+  status             OrderStatus
+  createdByUserId    String
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  organization  Organization @relation(fields: [organizationId], references: [id])
+  shipper       Shipper      @relation(fields: [shipperId], references: [id])
+  createdByUser User         @relation(fields: [createdByUserId], references: [id])
+  items         OrderItem[]
+
+  @@unique([organizationId, orderNumber])
+  @@index([organizationId, status])
+  @@index([organizationId, createdAt])
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  productId String
+  quantity  Int
+  createdAt DateTime @default(now())
+
+  order       Order        @relation(fields: [orderId], references: [id])
+  product     Product      @relation(fields: [productId], references: [id])
+  allocations Allocation[]
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+model Allocation {
+  id          String    @id @default(cuid())
+  orderItemId String
+  inventoryId String
+  quantity    Int
+  /// null: 引当有効 / not null: 引当解除済み。Allocationは削除せず履歴として保持する。
+  releasedAt  DateTime?
+  createdAt   DateTime  @default(now())
+
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id])
+  inventory Inventory @relation(fields: [inventoryId], references: [id])
+
+  @@index([orderItemId])
+  @@index([inventoryId, releasedAt])
+  @@map("allocations")
+}
