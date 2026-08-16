@@ -27,6 +27,14 @@ const KNOWN_API_ERROR_CODES = new Set<string>(Object.values(API_ERROR_CODE));
 /** これ以上のステータスはサーバー起因として扱い、スタックトレースを記録する。 */
 const SERVER_ERROR_STATUS: number = HttpStatus.INTERNAL_SERVER_ERROR;
 
+const HTTP_STATUS_TO_ERROR_CODE: Record<number, ApiErrorCode> = {
+  [HttpStatus.BAD_REQUEST]: API_ERROR_CODE.VALIDATION_FAILED,
+  [HttpStatus.UNAUTHORIZED]: API_ERROR_CODE.UNAUTHENTICATED,
+  [HttpStatus.FORBIDDEN]: API_ERROR_CODE.FORBIDDEN,
+  [HttpStatus.NOT_FOUND]: API_ERROR_CODE.NOT_FOUND,
+  [HttpStatus.CONFLICT]: API_ERROR_CODE.CONFLICT,
+};
+
 /**
  * 内部例外をそのままクライアントへ返さず、presentation層でHTTPレスポンスへ変換する。
  */
@@ -102,10 +110,15 @@ export class ApplicationExceptionFilter implements ExceptionFilter {
       };
     }
 
+    // ルート未定義などNestJSが直接投げる例外。ステータスに応じたコードを返す。
     if (exception instanceof HttpException) {
+      const status = exception.getStatus();
       return {
-        status: exception.getStatus(),
-        body: { code: API_ERROR_CODE.INTERNAL_ERROR, message: exception.message },
+        status,
+        body: {
+          code: HTTP_STATUS_TO_ERROR_CODE[status] ?? API_ERROR_CODE.INTERNAL_ERROR,
+          message: exception.message,
+        },
       };
     }
 
