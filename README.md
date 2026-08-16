@@ -237,6 +237,18 @@ CHECK ("quantity" > 0)  -- order_items / allocations
 
 ---
 
+## 同時実行負荷試験（k6）
+
+同一在庫への同時出荷オーダー登録を検証します。手順は [tests/load/README.md](tests/load/README.md) を参照してください。
+
+```bash
+pnpm load:reset                      # 試験開始状態へ戻す
+k6 run tests/load/concurrent-order.js # 100 VU × 1 request
+pnpm load:verify                     # DBの整合性を確認
+```
+
+---
+
 ## 初期版の制約
 
 - 同時実行時の在庫競合対策（悲観ロック・楽観ロック・Serializable等）は実装していません。

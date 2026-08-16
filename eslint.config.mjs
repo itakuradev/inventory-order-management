@@ -23,9 +23,25 @@ export default tseslint.config(
   // 設定ファイル等のJavaScript。型情報は使わない。
   {
     files: ['**/*.{js,mjs,cjs}'],
+    ignores: ['tests/load/**'],
     extends: [js.configs.recommended],
     languageOptions: {
       globals: { ...globals.node },
+    },
+  },
+
+  // k6スクリプト。Node.jsではなくk6ランタイムで実行されるため、専用のグローバルを定義する。
+  {
+    files: ['tests/load/**/*.js'],
+    extends: [js.configs.recommended],
+    languageOptions: {
+      sourceType: 'module',
+      globals: {
+        __ENV: 'readonly',
+        __VU: 'readonly',
+        __ITER: 'readonly',
+        console: 'readonly',
+      },
     },
   },
 

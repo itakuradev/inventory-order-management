@@ -21,7 +21,9 @@
     "test": "pnpm --filter @logimaster/api test",
     "typecheck": "pnpm -r typecheck",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "load:verify": "docker compose exec -T db psql -U logimaster -d logimaster < tests/load/verify-consistency.sql",
+    "load:reset": "docker compose exec -T db psql -U logimaster -d logimaster < tests/load/reset-transactions.sql"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
