@@ -23,6 +23,9 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
   const [demoUserKey, setDemoUserKey] = useState<DemoUserKey | null>(null);
   const [isRestoring, setIsRestoring] = useState(true);
 
+  /* eslint-disable react-hooks/set-state-in-effect --
+     localStorageはサーバーレンダリング時に参照できず、初期stateとして読み込むと
+     hydrationが不一致になる。そのためマウント後のsetStateでセッションを復元する。 */
   useEffect(() => {
     const stored = demoUserKeySchema.safeParse(window.localStorage.getItem(STORAGE_KEY));
     if (stored.success) {
@@ -30,6 +33,7 @@ export function DemoSessionProvider({ children }: { children: ReactNode }) {
     }
     setIsRestoring(false);
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const login = useCallback((key: DemoUserKey) => {
     window.localStorage.setItem(STORAGE_KEY, key);

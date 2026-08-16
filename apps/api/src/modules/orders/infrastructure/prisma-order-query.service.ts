@@ -2,11 +2,10 @@ import { Injectable } from '@nestjs/common';
 import type {
   ListOrdersQuery,
   OrderDetail,
-  OrderStatus,
   OrderSummary,
   Paginated,
 } from '@logimaster/contracts';
-import { OrderStatus as PrismaOrderStatus, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { TransactionContext } from '../../../prisma/transaction-context';
 import { OrderQueryService } from '../application/order-query.service';
 
@@ -33,7 +32,7 @@ export class PrismaOrderQueryService extends OrderQueryService {
       ...(query.shipperName
         ? { shipper: { name: { contains: query.shipperName, mode: 'insensitive' } } }
         : {}),
-      ...(query.status ? { status: query.status as PrismaOrderStatus } : {}),
+      ...(query.status ? { status: query.status } : {}),
     };
 
     const [total, records] = await Promise.all([
@@ -58,7 +57,7 @@ export class PrismaOrderQueryService extends OrderQueryService {
         },
         destinationName: record.destinationName,
         itemCount: record._count.items,
-        status: record.status as OrderStatus,
+        status: record.status,
         requestedShipDate: toIsoDate(record.requestedShipDate),
         createdAt: record.createdAt.toISOString(),
       })),
@@ -99,7 +98,7 @@ export class PrismaOrderQueryService extends OrderQueryService {
       destinationName: record.destinationName,
       destinationAddress: record.destinationAddress,
       itemCount: record.items.length,
-      status: record.status as OrderStatus,
+      status: record.status,
       requestedShipDate: toIsoDate(record.requestedShipDate),
       createdByUserName: record.createdByUser.name,
       createdAt: record.createdAt.toISOString(),

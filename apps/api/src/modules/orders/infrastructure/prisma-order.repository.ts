@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import type { OrderStatus } from '@logimaster/contracts';
-import { OrderStatus as PrismaOrderStatus } from '@prisma/client';
 import { TransactionContext } from '../../../prisma/transaction-context';
 import { Order, type OrderDraft, type PersistedOrder } from '../domain/order';
 import { OrderRepository } from '../domain/order.repository';
@@ -20,7 +18,7 @@ export class PrismaOrderRepository extends OrderRepository {
         destinationName: draft.destinationName,
         destinationAddress: draft.destinationAddress,
         requestedShipDate: draft.requestedShipDate,
-        status: draft.status as PrismaOrderStatus,
+        status: draft.status,
         createdByUserId: draft.createdByUserId,
         items: {
           create: draft.items.map((item) => ({
@@ -59,14 +57,14 @@ export class PrismaOrderRepository extends OrderRepository {
       id: record.id,
       organizationId: record.organizationId,
       orderNumber: record.orderNumber,
-      status: record.status as OrderStatus,
+      status: record.status,
     });
   }
 
   override async updateStatus(order: Order): Promise<void> {
     await this.context.executor.order.update({
       where: { id: order.id },
-      data: { status: order.status as PrismaOrderStatus },
+      data: { status: order.status },
     });
   }
 }

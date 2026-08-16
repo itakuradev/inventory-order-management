@@ -190,8 +190,20 @@ Demo Login
 ```bash
 pnpm test        # Jest（NestJS）
 pnpm typecheck   # 全ワークスペースの型チェック
+pnpm lint        # ESLint（monorepo全体）
+pnpm lint:fix    # ESLintの自動修正
 pnpm build       # contracts / api / web のビルド
 ```
+
+### ESLint
+
+ルートの `eslint.config.mjs`（Flat Config）でmonorepo全体を一括して検査します。
+
+- `@eslint/js` recommended
+- `typescript-eslint` recommended-type-checked（型情報を利用した検査）
+- `eslint-plugin-react-hooks` / `@next/eslint-plugin-next`（`apps/web` のみ）
+
+`next build` 時のLintは無効化し、`pnpm lint` に一本化しています。
 
 Jestは主要な業務ルールを対象としています。
 

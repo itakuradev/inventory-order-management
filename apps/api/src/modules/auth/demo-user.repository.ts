@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import type { DemoUserKey, MeResponse, UserRole } from '@logimaster/contracts';
+import type { DemoUserKey, MeResponse } from '@logimaster/contracts';
 import { ResourceNotFoundError } from '../../common/errors/application-errors';
 import { TransactionContext } from '../../prisma/transaction-context';
 import type { AuthenticatedUser } from './authenticated-user';
@@ -18,7 +18,7 @@ export class DemoUserRepository {
       id: user.id,
       demoKey,
       name: user.name,
-      role: user.role as UserRole,
+      role: user.role,
       organizationId: user.organizationId,
     };
   }

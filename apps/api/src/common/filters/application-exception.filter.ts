@@ -24,6 +24,9 @@ type HttpErrorResponse = {
 
 const KNOWN_API_ERROR_CODES = new Set<string>(Object.values(API_ERROR_CODE));
 
+/** これ以上のステータスはサーバー起因として扱い、スタックトレースを記録する。 */
+const SERVER_ERROR_STATUS: number = HttpStatus.INTERNAL_SERVER_ERROR;
+
 /**
  * 内部例外をそのままクライアントへ返さず、presentation層でHTTPレスポンスへ変換する。
  */
@@ -34,7 +37,7 @@ export class ApplicationExceptionFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost): void {
     const { status, body } = this.toHttpError(exception);
 
-    if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
+    if (status >= SERVER_ERROR_STATUS) {
       this.logger.error(body.message, exception instanceof Error ? exception.stack : undefined);
     }
 
