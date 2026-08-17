@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 const ORGANIZATION_NAME = 'ロジマスター物流株式会社';
 const WAREHOUSE_CODE = 'WH-HACHIOJI';
-const WAREHOUSE_NAME = '八王子物流センター';
+const WAREHOUSE_NAME = 'ロジマスター八王子物流センター';
 const UNIT = '個';
 
 type ProductSeed = {
@@ -22,7 +22,7 @@ type ShipperSeed = {
 const SHIPPERS: ShipperSeed[] = [
   {
     code: 'SHP-001',
-    name: '株式会社みどり食品',
+    name: '株式会社サンプル食品',
     products: [
       { sku: 'FD-1001', name: '特選ロースハム 400g', onHandQuantity: 100 },
       { sku: 'FD-1002', name: '国産カットわかめ 50g', onHandQuantity: 480 },
@@ -32,7 +32,7 @@ const SHIPPERS: ShipperSeed[] = [
   },
   {
     code: 'SHP-002',
-    name: 'サンライズ飲料株式会社',
+    name: 'サンプル飲料株式会社',
     products: [
       { sku: 'BV-2001', name: '緑茶ペットボトル 500ml', onHandQuantity: 100 },
       { sku: 'BV-2002', name: 'ミネラルウォーター 2L', onHandQuantity: 1200 },
@@ -42,7 +42,7 @@ const SHIPPERS: ShipperSeed[] = [
   },
   {
     code: 'SHP-003',
-    name: '株式会社クリーンライフ',
+    name: '株式会社サンプルライフ',
     products: [
       { sku: 'DG-3001', name: '液体洗濯洗剤 詰替用 1000ml', onHandQuantity: 620 },
       { sku: 'DG-3002', name: 'トイレットペーパー 12ロール', onHandQuantity: 180 },
@@ -52,7 +52,7 @@ const SHIPPERS: ShipperSeed[] = [
   },
   {
     code: 'SHP-004',
-    name: '北海道乳業株式会社',
+    name: 'サンプル乳業株式会社',
     products: [
       { sku: 'DR-4001', name: '北海道牛乳 1L', onHandQuantity: 210 },
       { sku: 'DR-4002', name: 'プレーンヨーグルト 400g', onHandQuantity: 145 },
