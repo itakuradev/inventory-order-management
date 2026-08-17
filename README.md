@@ -15,7 +15,7 @@
 | 出荷オーダー登録 | 複数明細の登録、登録時の在庫引当 |
 | 出荷オーダー詳細 | キャンセル、後続工程への引き渡し |
 | 在庫一覧 | 実在庫・引当済・引当可能の表示、商品No/商品名・荷主での絞り込み |
-| 在庫調整 | 実在庫の増減（ADMINのみ） |
+| 在庫調整 | 実在庫の調整（ADMINのみ） |
 
 ---
 
@@ -47,7 +47,7 @@ packages/
 └─ contracts/  # Next.js / NestJS間で共有するAPI契約
 ```
 
-`apps/api` は業務単位でモジュールを分け、モジュール内を4層に分離する。
+`apps/api` は業務単位でモジュールを分け、Presentation / Application / Infrastructure と Domain に責務を分離する。
 
 ```text
 apps/api/src/modules/<module>/
@@ -61,13 +61,12 @@ apps/api/src/modules/<module>/
 
 ---
 
-## 設計・実装のポイント
+## 業務ルール
 
-- 出荷オーダー登録時に在庫を引き当てる。1商品でも不足する場合はオーダー全体を失敗させ、部分引当は行わない。
-- 許可する状態遷移は `ALLOCATED → HANDED_OVER` と `ALLOCATED → CANCELLED` のみ。キャンセル時はAllocationを削除せず `releasedAt` を記録して引当済数量を戻す。
-- 引当可能数は保存せず `onHandQuantity - allocatedQuantity` で算出する。在庫数量の不変条件はDBのCHECK制約でも担保する。
-- Demo Loginで選択したユーザーの識別子をHTTPヘッダーでAPIへ送信し、サーバー側でUser・Organization・Roleを解決する。実在庫の調整はADMINのみで、画面での制御に加えNestJSのGuardでも拒否する。
-- リクエスト・レスポンスの型とバリデーションは `packages/contracts` のZodスキーマをフロントエンド・バックエンドで共有する。
+- 出荷オーダー登録時に在庫を引き当てる。1商品でも在庫が不足する場合はオーダー全体を失敗とし、部分引当は行わない。
+- 出荷オーダーは `ALLOCATED → HANDED_OVER` または `ALLOCATED → CANCELLED` のみ遷移できる。
+- キャンセル時は引当を解除し、引当済数量を戻す。
+- 引当可能在庫は `実在庫 - 引当済在庫` とする。
 
 ---
 
@@ -113,7 +112,9 @@ pnpm build       # contracts / api / web のビルド
 
 ## スコープ外
 
-本認証（Cognito等）、MFA、入荷、ロケーション管理、ロット・賞味期限、ピッキング、梱包、出荷完了、配送・配車、請求、荷主向け画面、マスタCRUD画面。
+- 入荷・ロケーション・ピッキング・梱包等の倉庫作業工程
+- 出荷完了、配送・配車、請求
+- 本認証、荷主向け画面、各種マスタCRUD
 
 ---
 
